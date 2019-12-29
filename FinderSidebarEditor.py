@@ -57,7 +57,16 @@ NetFS_bundle = initFrameworkWrapper(
 )
 
 
-def mount_share(share_path):
+def mount_share(share_path: str) -> str:
+    """Mount a share at /Volumes.
+
+    :param str share_path: Path of the share.
+
+    :returns: The mount path.
+
+    :raises Exception: If there's an error mounting.
+    """
+
     # Mounts a share at /Volumes, returns the mount point or raises an error
     sh_url = CFURLCreateWithString(None, share_path, None)
     # Set UI to reduced interaction
@@ -70,7 +79,7 @@ def mount_share(share_path):
     )
     # Check if it worked
     if result != 0:
-        raise Exception('Error mounting url "%s": %s' % (share_path, output))
+        raise Exception(f'Error mounting url "{share_path}": {output}')
     # Return the mount path
     return str(output[0])
 
@@ -84,8 +93,7 @@ loadBundleFunctions(
 
 
 class FinderSidebar:
-    """
-    Finder Sidebar instance for modifying favorites entries for logged in user.
+    """Finder Sidebar instance for modifying favorites entries for logged in user.
 
     Attributes:
         sflRef (LSSharedFileList): Reference to sfl object containing Finder
@@ -104,11 +112,10 @@ class FinderSidebar:
         self.favorites = dict()
         self.update()
 
-    def update(self):
+    def update(self) -> None:
+        """Updates snapshot and favorites attributes.
         """
-        Updates snapshot and favorites attributes.
 
-        """
         self.favorites = dict()
         self.snapshot = LSSharedFileListCopySnapshot(self.sflRef, None)
         for item in self.snapshot[0]:
@@ -119,23 +126,20 @@ class FinderSidebar:
             self.favorites[name] = path
 
     @staticmethod
-    def synchronize():
+    def synchronize() -> None:
+        """Synchronizes CF preferences for the `sidebarlists` identifier.
         """
-        Synchronizes CF prefs for sidebarlists identifier.
 
-        """
         CFPreferencesAppSynchronize("com.apple.sidebarlists")
 
-    def move(self, to_mv, after):
-        """
-        Moves sidebar list item to position immediately other sidebar
+    def move(self, to_mv: str, after: str) -> None:
+        """Moves sidebar list item to position immediately other sidebar
         list item.
 
-        Args:
-            to_mv (str): Name of sidebar list item to move.
-            after (str): Name of sidebar list item to move "to_mv" after.
-
+        :param str to_mv: Name of sidebar list item to move.
+        :param str after: Name of sidebar list item to move "to_mv" after.
         """
+
         if to_mv not in self.favorites.keys() or \
                 after not in self.favorites.keys() or to_mv == after:
             return
@@ -152,14 +156,12 @@ class FinderSidebar:
         self.synchronize()
         self.update()
 
-    def remove(self, to_rm):
-        """
-        Removes sidebar list item.
+    def remove(self, to_rm: str) -> None:
+        """Removes sidebar list item.
 
-        Args:
-            to_rm (str): Name of sidebar list item to remove.
-
+        :param str to_rm: Name of sidebar list item to remove.
         """
+
         for item in self.snapshot[0]:
             name = LSSharedFileListItemCopyDisplayName(item)
             if to_rm.upper() == name.upper():
@@ -167,23 +169,20 @@ class FinderSidebar:
         self.synchronize()
         self.update()
 
-    def remove_all(self):
+    def remove_all(self) -> None:
+        """Removes all sidebar list items.
         """
-        Removes all sidebar list items.
 
-        """
         LSSharedFileListRemoveAllItems(self.sflRef)
         self.synchronize()
         self.update()
 
-    def remove_by_path(self, path):
-        """
-        Removes sidebar list item.
+    def remove_by_path(self, path: str) -> None:
+        """Removes sidebar list item.
 
-        Args:
-            path (str): Path of sidebar list item to remove.
-
+        :param str path: Path of sidebar list item to remove.
         """
+
         comparison_path = f'file://{path}/'.upper()
         for item in self.snapshot[0]:
             sidebar_item = LSSharedFileListItemCopyResolvedURL(item, 0, None)
@@ -192,20 +191,16 @@ class FinderSidebar:
         self.synchronize()
         self.update()
 
-    def add(self, to_add, uri="file://localhost"):
+    def add(self, to_add: str, uri: str = "file://localhost") -> None:
+        """Append item to sidebar list items.
+
+        :param str to_add: Path to item to append to sidebar list.
+        :param str uri: URI of server where item resides if not on localhost.
         """
-        Append item to sidebar list items.
 
-        Args:
-            :param to_add: Path to item to append to sidebar list.
-
-        Keyword Args:
-            :param uri: URI of server where item resides if not on localhost.
-
-        """
         if uri.startswith("afp") or uri.startswith("smb"):
-            path = "%s%s" % (uri, to_add)
-            to_add = mount_share(path)
+            to_add = mount_share(uri + to_add)
+
         item = NSURL.alloc().initFileURLWithPath_(to_add)
         LSSharedFileListInsertItemURL(
             self.sflRef, kLSSharedFileListItemBeforeFirst,
@@ -214,33 +209,27 @@ class FinderSidebar:
         self.synchronize()
         self.update()
 
-    def get_index_from_name(self, name):
+    def get_index_from_name(self, name: str) -> int:
+        """Gets index of sidebar list item identified by name.
+
+        :param str name: Display name to identify sidebar list item by.
+
+        :returns: Index of sidebar list item identified by name.
         """
-        Gets index of sidebar list item identified by name.
 
-        Args:
-            name (str): Display name to identfy sidebar list item by.
-
-        Returns:
-            Index of sidebar list item identified by name
-
-        """
         for index, item in enumerate(self.snapshot[0]):
             found_name = LSSharedFileListItemCopyDisplayName(item)
             if name == found_name:
                 return index
 
-    def get_name_from_index(self, index):
+    def get_name_from_index(self, index: int) -> None:
+        """Gets name of sidebar list item identified by index.
+
+        :param int index: Index to identify sidebar list item by.
+
+        :returns: Name of sidebar list item identified by index.
         """
-        Gets name of sidebar list item identified by index.
 
-        Args:
-            index (str): Index to identify sidebar list item by.
-
-        Returns:
-            Name of sidebar list item identified by index.
-
-        """
         if index > len(self.snapshot[0]):
             index = -1
         return LSSharedFileListItemCopyDisplayName(self.snapshot[0][index])
