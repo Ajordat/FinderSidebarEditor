@@ -1,6 +1,6 @@
 import pathlib
 from setuptools import setup
-from .finder_sidebar_editor import __version__
+from finder_sidebar_editor import __version__
 
 
 # The text of the README file
