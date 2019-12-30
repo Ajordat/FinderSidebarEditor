@@ -1,5 +1,6 @@
-from FinderSidebarEditor import FinderSidebar
 import unittest
+
+from finder_sidebar_editor import FinderSidebar
 
 
 class TestFinderSidebar(unittest.TestCase):
