@@ -79,7 +79,7 @@ def mount_share(share_path: str) -> str:
     )
     # Check if it worked
     if result != 0:
-        raise Exception(f'Error mounting url "{share_path}": {output}')
+        raise Exception('Error mounting url "{}": {}'.format(share_path, output))
     # Return the mount path
     return str(output[0])
 
@@ -183,7 +183,7 @@ class FinderSidebar:
         :param str path: Path of sidebar list item to remove.
         """
 
-        comparison_path = f'file://{path}/'.upper()
+        comparison_path = 'file://{}/'.format(path).upper()
         for item in self.snapshot[0]:
             sidebar_item = LSSharedFileListItemCopyResolvedURL(item, 0, None)
             if comparison_path == str(sidebar_item[0]).upper():
