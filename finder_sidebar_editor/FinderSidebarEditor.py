@@ -1,5 +1,4 @@
 from platform import mac_ver
-import os
 
 from Cocoa import NSURL
 from CoreFoundation import CFPreferencesAppSynchronize
