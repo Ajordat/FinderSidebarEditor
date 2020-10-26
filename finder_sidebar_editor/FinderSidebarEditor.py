@@ -55,7 +55,7 @@ NetFS = attrdict()
 netfs_path = 'NetFS.framework'
 
 if os_version >= 11:
-    netfs_path = 'System/Library/Frameworks/' + netfs_path
+    netfs_path = '/System/Library/Frameworks/' + netfs_path
 
 NetFS_bundle = initFrameworkWrapper(
     'NetFS', frameworkIdentifier=None,
