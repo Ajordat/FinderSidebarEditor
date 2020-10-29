@@ -50,9 +50,16 @@ NetFS = attrdict()
 # Can cheat and provide 'None' for the identifier, it'll just use
 # frameworkPath instead scan_classes=False means only add the
 # contents of this Framework
+
+
+netfs_path = 'NetFS.framework'
+
+if os_version >= 11:
+    netfs_path = '/System/Library/Frameworks/' + netfs_path
+
 NetFS_bundle = initFrameworkWrapper(
     'NetFS', frameworkIdentifier=None,
-    frameworkPath=pathForFramework('NetFS.framework'), globals=NetFS,
+    frameworkPath=pathForFramework(netfs_path), globals=NetFS,
     scan_classes=False
 )
 
