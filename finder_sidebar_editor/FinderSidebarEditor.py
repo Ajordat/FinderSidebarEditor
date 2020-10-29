@@ -8,6 +8,9 @@ from Foundation import NSBundle
 from LaunchServices import kLSSharedFileListFavoriteItems
 from objc import loadBundleFunctions, initFrameworkWrapper, pathForFramework
 
+
+NETFS_PATH = 'NetFS.framework'
+
 os_version = int(mac_ver()[0].split('.')[1])
 if os_version > 10:
     SFL_bundle = NSBundle.bundleWithIdentifier_(
@@ -26,6 +29,10 @@ if os_version > 10:
     ]
     loadBundleFunctions(SFL_bundle, globals(), functions)
     from LaunchServices import LSSharedFileListItemCopyResolvedURL
+
+    if os_version >= 11:
+        NETFS_PATH = '/System/Library/Frameworks/' + NETFS_PATH
+
 else:
     from LaunchServices import kLSSharedFileListItemBeforeFirst
     from LaunchServices import LSSharedFileListCreate
@@ -51,15 +58,9 @@ NetFS = attrdict()
 # frameworkPath instead scan_classes=False means only add the
 # contents of this Framework
 
-
-netfs_path = 'NetFS.framework'
-
-if os_version >= 11:
-    netfs_path = '/System/Library/Frameworks/' + netfs_path
-
 NetFS_bundle = initFrameworkWrapper(
     'NetFS', frameworkIdentifier=None,
-    frameworkPath=pathForFramework(netfs_path), globals=NetFS,
+    frameworkPath=pathForFramework(NETFS_PATH), globals=NetFS,
     scan_classes=False
 )
 
