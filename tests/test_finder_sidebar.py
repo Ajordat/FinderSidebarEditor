@@ -6,6 +6,7 @@ from contextlib import suppress
 class TestFinderSidebar(unittest.TestCase):
 	def setUp(self):
 		self.finder = FinderSidebar()
+		self.pre_items = []
 		for uri in self.finder.favorites.values():
 			with suppress(IndexError):
 				# This will suppress the exceptions coming from
