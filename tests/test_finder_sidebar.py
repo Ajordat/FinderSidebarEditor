@@ -1,16 +1,16 @@
 import unittest
 
 from finder_sidebar_editor import FinderSidebar
-
+from contextlib import suppress
 
 class TestFinderSidebar(unittest.TestCase):
 	def setUp(self):
 		self.finder = FinderSidebar()
-		print([uri for uri in self.finder.favorites.values()])
-		self.pre_items = [
-			str(uri).split("file://")[1]
-			for uri in self.finder.favorites.values()
-		]
+		for uri in self.finder.favorites.values():
+			with suppress(IndexError):
+				# This will suppress the exceptions coming from
+				# strings without the selected prefix.
+				self.pre_items += [str(uri).split("file://")[1]]
 		self.finder.remove_all()
 
 	def tearDown(self):
