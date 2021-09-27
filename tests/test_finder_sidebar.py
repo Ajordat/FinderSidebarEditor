@@ -6,6 +6,7 @@ from finder_sidebar_editor import FinderSidebar
 class TestFinderSidebar(unittest.TestCase):
 	def setUp(self):
 		self.finder = FinderSidebar()
+		print([uri for uri in self.finder.favorites.values()])
 		self.pre_items = [
 			str(uri).split("file://")[1]
 			for uri in self.finder.favorites.values()
