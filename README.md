@@ -1,4 +1,13 @@
+
 # FinderSidebarEditor
+
+![PyPI](https://img.shields.io/pypi/v/finder-sidebar-editor)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/finder-sidebar-editor)
+![PyPI - License](https://img.shields.io/pypi/l/finder-sidebar-editor)
+
+![GitHub issues](https://img.shields.io/github/issues/ajordat/finder-sidebar-editor)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/ajordat/finder-sidebar-editor)
+
 Python module for easily adding, removing, and moving favorites on the Finder sidebar in the context of the logged in user.
 
 Example Usage:
