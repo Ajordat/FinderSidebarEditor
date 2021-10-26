@@ -1,5 +1,5 @@
 
-# FinderSidebarEditor
+# Finder Sidebar Editor
 
 ![PyPI](https://img.shields.io/pypi/v/finder-sidebar-editor)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/finder-sidebar-editor)
@@ -10,7 +10,16 @@
 
 Python module for easily adding, removing, and moving favorites on the Finder sidebar in the context of the logged in user.
 
-Example Usage:
+### Installation
+
+Install the [PyPI package][1] using pip:
+
+```
+pip install finder-sidebar-editor
+```
+
+### Example usage
+
 ```python
 from finder_sidebar_editor import FinderSidebar                # Import the module
 
@@ -23,3 +32,5 @@ sidebar.add("/SomeShare", uri="smb://shares")                  # Mount 'smb://sh
 sidebar.add("/SomeOtherShare", uri="afp://username:pw@server") # Mount pw protected 'afp://server/SomeOtherShare' to '/Volumes/SomeOtherShare' and add as favorite to sidebar
 sidebar.move("Library", "Applications")                        # Move 'Library' favorite to slot just below 'Applications'
 ```
+
+[1]: https://pypi.org/project/finder-sidebar-editor/
