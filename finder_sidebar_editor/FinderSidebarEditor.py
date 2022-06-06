@@ -1,4 +1,5 @@
 from platform import mac_ver
+import os
 
 from Cocoa import NSURL
 from CoreFoundation import CFPreferencesAppSynchronize
@@ -9,9 +10,21 @@ from LaunchServices import kLSSharedFileListFavoriteItems
 from objc import loadBundleFunctions, initFrameworkWrapper, pathForFramework
 
 
-NETFS_PATH = 'NetFS.framework'
+def get_mac_version():
+    is_backwards_compatible = os.environ.get('SYSTEM_VERSION_COMPAT', '0') == '1'
+    version = mac_ver()[0]
+    if is_backwards_compatible:
+        if version == '10.16':
+            return 11
 
-os_version = int(mac_ver()[0].split('.')[1])
+    version_int = int(version.split('.')[0])
+
+    return version_int
+
+
+NETFS_PATH = 'NetFS.framework'
+os_version = get_mac_version()
+
 if os_version > 10:
     SFL_bundle = NSBundle.bundleWithIdentifier_(
         'com.apple.coreservices.SharedFileList'
