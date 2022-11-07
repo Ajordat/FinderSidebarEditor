@@ -1,12 +1,13 @@
 from platform import mac_ver
 
+import NetFS
 from Cocoa import NSURL
 from CoreFoundation import CFPreferencesAppSynchronize
 from CoreFoundation import CFURLCreateWithString
 from CoreFoundation import kCFAllocatorDefault
 from Foundation import NSBundle
 from LaunchServices import kLSSharedFileListFavoriteItems
-from objc import loadBundleFunctions, initFrameworkWrapper, pathForFramework
+from objc import loadBundleFunctions
 
 
 NETFS_PATH = 'NetFS.framework'
@@ -45,26 +46,6 @@ else:
     from LaunchServices import LSSharedFileListInsertItemURL
 
 
-# Shoutout to Mike Lynn for the mount_share function below, allowing for the
-# scripting of mounting network shares. See his blog post for more details:
-# http://michaellynn.github.io/2015/08/08/learn-you-a-better-pyobjc-bridgesupport-signature/
-class attrdict(dict):
-    __getattr__ = dict.__getitem__
-    __setattr__ = dict.__setitem__
-
-
-NetFS = attrdict()
-# Can cheat and provide 'None' for the identifier, it'll just use
-# frameworkPath instead scan_classes=False means only add the
-# contents of this Framework
-
-NetFS_bundle = initFrameworkWrapper(
-    'NetFS', frameworkIdentifier=None,
-    frameworkPath=pathForFramework(NETFS_PATH), globals=NetFS,
-    scan_classes=False
-)
-
-
 def mount_share(share_path: str) -> str:
     """Mount a share at /Volumes.
 
@@ -90,14 +71,6 @@ def mount_share(share_path: str) -> str:
         raise Exception('Error mounting url "{}": {}'.format(share_path, output))
     # Return the mount path
     return str(output[0])
-
-
-# https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html
-# Fix NetFSMountURLSync signature
-del NetFS['NetFSMountURLSync']
-loadBundleFunctions(
-    NetFS_bundle, NetFS, [('NetFSMountURLSync', b'i@@@@@@o^@')]
-)
 
 
 class FinderSidebar:
