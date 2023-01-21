@@ -10,6 +10,8 @@
 
 Python module for easily adding, removing, and moving favorites on the Finder sidebar in the context of the logged in user.
 
+Based on the work by robperc in [robperc/FinderSidebarEditor][2].
+
 ### Installation
 
 Install the [PyPI package][1] using pip:
@@ -34,3 +36,4 @@ sidebar.move("Library", "Applications")                        # Move 'Library' 
 ```
 
 [1]: https://pypi.org/project/finder-sidebar-editor/
+[2]: https://github.com/robperc/FinderSidebarEditor
