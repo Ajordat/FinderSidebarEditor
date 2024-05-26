@@ -150,7 +150,7 @@ class FinderSidebar:
         self.update()
 
     def exists(self, item_name: str) -> bool:
-        """Return trie if the case-insensitive item_name exists in the favorites
+        """Return true if the case-insensitive item_name exists in the favorites
 
         :param str item_name: Name of sidebar list item to verify exists
         """

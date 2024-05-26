@@ -5,7 +5,6 @@ from pprint import pprint
 from typing import Optional, Annotated
 
 import typer
-import rich
 from rich.table import Table
 
 from finder_sidebar_editor import FinderSidebar
@@ -14,9 +13,9 @@ FILE_LOCALHOST = "file://localhost"
 
 
 # TODO move to core utils
-class OutputFlavor(str,Enum):
+class OutputFlavor(str, Enum):
     TXT = "txt"
-    QUOTED_TXT="quoted-txt"
+    QUOTED_TXT = "quoted-txt"
     JSON = "json"
     CSV = "csv"
 
@@ -28,23 +27,12 @@ app = typer.Typer(no_args_is_help=True, help="""A program edit the MacOS finder 
 def ls(raw: Annotated[
     Optional[bool], typer.Option(help="raw output. Maybe useful for debugging. Overrides format option.")] = False,
        output_format: Annotated[OutputFlavor, typer.Option()] = OutputFlavor.TXT):
-    if None:
-        sidebar = FinderSidebar()
-        sidebar.remove("All My Files")  # Remove 'All My Files' favorite from sidebar
-        sidebar.remove("iCloud")  # Remove 'iCloud' favorite from sidebar
-        sidebar.add("/Library")  # Add '/Library' favorite to sidebar
-        sidebar.add("/SomeShare",
-                    uri="smb://shares")  # Mount 'smb://shares/SomeShare' to '/Volumes/SomeShare' and add as favorite to sidebar
-        sidebar.add("/SomeOtherShare",
-                    uri="afp://username:pw@server")  # Mount pw protected 'afp://server/SomeOtherShare' to '/Volumes/SomeOtherShare' and add as favorite to sidebar
-        sidebar.move("Library", "Applications")
-
     sidebar = FinderSidebar()
     if raw:
         pprint(sidebar.snapshot)
         exit(0)
     else:
-        output(sidebar.favorites, output_format)
+        output_ls(sidebar.favorites, output_format)
 
 
 @app.command()
@@ -52,6 +40,9 @@ def rm(name_or_path: Annotated[str, typer.Argument()],
        force: Annotated[
            Optional[bool], typer.Option(help="ignore missing favorite name, otherwise return error.")] = False,
        by_path: Annotated[Optional[bool], typer.Option()] = False):
+    if not name_or_path or name_or_path.isspace():
+        print_error("name or path is empty or whitespace only")
+        exit(1)
     sidebar = FinderSidebar()
     if by_path:
         sidebar.remove_by_path(name_or_path)
@@ -60,17 +51,16 @@ def rm(name_or_path: Annotated[str, typer.Argument()],
         if not force:
             sidebar.update()
             validate_name(sidebar, name)
+            sidebar.remove(name_or_path)
         else:
             sidebar.remove(name_or_path)
 
 
-def verboseprint(parama: str, verbose: bool):
-    if verbose:
-        print(parama)
-
-
 @app.command()
-def add(path: Annotated[str, typer.Argument()],
+def add(path: Annotated[str, typer.Argument(help="""The path to add, which must exist unless --force is used.
+            If you add a path that was already added, it is effectively a noop (or appears to be?).
+            The name of the favorite is the tail end of the path (i.e. /path/to/mydir gets a name mydir).
+            """)],
         uri: Annotated[Optional[str], typer.Argument(
             help='If this starts with "afp" or "smb", then try to mount it first. It is an error if it MacOS cannot ' \
                  ' mount it.')] = FILE_LOCALHOST,
@@ -89,15 +79,15 @@ def add(path: Annotated[str, typer.Argument()],
         import os
         from urllib.parse import urlparse
         if not os.path.exists(path):
-            print(fr'"{path}" not found', file=sys.stderr)
+            print_error(fr'"{path}" not found')
             exit(1)
         if not uri == FILE_LOCALHOST:
             p = urlparse(uri + path)
             final_path = os.path.abspath(os.path.join(p.netloc, p.path))
             if not os.path.exists(final_path):
-                print(fr'"{final_path}" not found', file=sys.stderr)
+                print_error(fr'"{final_path}" not found')
                 exit(1)
-    verboseprint(fr'adding "{path}" as {uri}', verbose)
+    print_verbose(fr'adding "{path}" as {uri}', verbose)
     sidebar.add(path, uri)
 
 
@@ -118,18 +108,25 @@ def rename(from_name: Annotated[str, typer.Argument()],
 
 
 def validate_name(sidebar: FinderSidebar, name: str) -> None:
+    """
+    ensure the name exists in the sidebar
+    Args:
+        sidebar:
+        name:
+
+    """
     if not sidebar.exists(name):
-        print(f'"{name}" not found', file=sys.stderr)
+        print_error(f'"{name}" not found')
         exit(1)
 
 
-def output(stuff: dict, output_flavor: OutputFlavor = OutputFlavor.TXT) -> None:
+def output_ls(stuff: dict, output_flavor: OutputFlavor = OutputFlavor.TXT) -> None:
     if output_flavor == OutputFlavor.JSON:
         raise NotImplementedError("Not yet implemented")
         # j = json.dumps(stuff )
     else:
         sep: str = "\t\t" if output_flavor in [OutputFlavor.TXT, OutputFlavor.QUOTED_TXT] else ","
-        quote:bool = output_flavor in [OutputFlavor.QUOTED_TXT or OutputFlavor.CSV]
+        quote: bool = output_flavor in [OutputFlavor.QUOTED_TXT or OutputFlavor.CSV]
         if output_flavor == OutputFlavor.CSV:
             for item in stuff.items():
                 print(f'"{item[0]}","{item[1]}"')
@@ -138,11 +135,20 @@ def output(stuff: dict, output_flavor: OutputFlavor = OutputFlavor.TXT) -> None:
             from rich.console import Console
             c = Console()
             for item in stuff.items():
-                if quote:
-                    t.add_row( str(item[0]) , str(item[1]) )
+                if not quote:
+                    t.add_row(str(item[0]), str(item[1]))
                 else:
-                    t.add_row( f'"{item[0]}"' , f'"{item[1]}"' )
+                    t.add_row(f'"{item[0]}"', f'"{item[1]}"')
             c.print(t)
+
+
+def print_error(msg: str) -> None:
+    print(msg, file=sys.stderr)
+
+
+def print_verbose(msg: str, verbose: bool):
+    if verbose:
+        print(msg)
 
 
 if __name__ == "__main__":
