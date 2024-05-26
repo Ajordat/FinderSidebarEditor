@@ -6,12 +6,12 @@ from setuptools import setup
 # The text of the README file
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
-VERSION = "v1.2.0"
+VERSION = "v1.2.1"
 
 setup(
     name="finder_sidebar_editor",
     version=VERSION,
-    description="Module for editing the Favorites entries of the Finder sidebar.",
+    description="Module and CLI for editing the Favorites entries of the Finder sidebar.",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/Ajordat/finder-sidebar-editor",
@@ -29,7 +29,7 @@ setup(
     install_requires=["pyobjc"],
     entry_points={
         "console_scripts": [
-            "finder_sidebar_editor=finder_sidebar_editor.__main__:main"
+            "finder_sidebar_editor=finder_sidebar_editor.cli:app"
         ]
     }
 )

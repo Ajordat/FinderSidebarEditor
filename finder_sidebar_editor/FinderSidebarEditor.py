@@ -9,7 +9,6 @@ from Foundation import NSBundle
 from LaunchServices import kLSSharedFileListFavoriteItems
 from objc import loadBundleFunctions
 
-
 NETFS_PATH = 'NetFS.framework'
 
 os_version = int(mac_ver()[0].split('.')[1])
@@ -149,6 +148,19 @@ class FinderSidebar:
                 LSSharedFileListItemRemove(self.sflRef, item)
         self.synchronize()
         self.update()
+
+    def exists(self, item_name: str) -> bool:
+        """Return trie if the case-insensitive item_name exists in the favorites
+
+        :param str item_name: Name of sidebar list item to verify exists
+        """
+
+        for item in self.snapshot[0]:
+            name = LSSharedFileListItemCopyDisplayName(item)
+            if item_name.upper() == name.upper():
+                return True
+        return False
+
 
     def remove_all(self) -> None:
         """Removes all sidebar list items.

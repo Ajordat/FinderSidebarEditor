@@ -64,3 +64,4 @@ target/
 
 # Intellij IDEs
 .idea
+.run
